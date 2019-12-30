@@ -18,6 +18,7 @@ class App:
 
         self.dir_name = StringVar()
         self.creative_name = StringVar()
+        self.task_number = StringVar()
         self.a_dir = StringVar()
         self.min_var = IntVar()
         self.min_var.set(1)
@@ -49,6 +50,12 @@ class App:
 
         self.creative_entry = ttk.Entry(self.mainframe, width=3, textvariable=self.creative_name)
         self.creative_entry.grid(column=1, row=9, columnspan=2, sticky=(W, E))
+
+        self.path = ttk.Label(self.mainframe, width=100, text="Номер таска")
+        self.path.grid(column=1, row=10, columnspan=10, sticky=W)
+
+        self.creative_entry = ttk.Entry(self.mainframe, width=3, textvariable=self.task_number)
+        self.creative_entry.grid(column=1, row=11, columnspan=2, sticky=(W, E))
 
 
 
@@ -84,6 +91,11 @@ class App:
         self.apply.grid(column=5, row=5, sticky=E)
         self.apply.state(['disabled'])
 
+        self.addcode = ttk.Button(self.mainframe, text='Add code and write to Excel', command=self.addcode)
+        self.addcode.grid(column=5, row=6, sticky=E)
+        self.addcode.state(['disabled'])
+
+
         for child in self.mainframe.winfo_children():
             child.grid_configure(padx=8, pady=5)
 
@@ -97,19 +109,29 @@ class App:
             print(self.tree)
             self.dir_name.set(preview)
             self.apply.state(['!disabled'])
+            self.addcode.state(['!disabled'])
+
         else:
             self.apply.state(['disabled'])
+            self.addcode.state(['disabled'])
             return
 
     def refresh(self):
         print('refreshed')
         self.tree.delete(*self.tree.get_children())
-        self.dir_name.set(self.rn.preview(self.folder, self.tree,self.dir_name.get(),self.creative_name.get()))
+        self.dir_name.set(self.rn.preview(self.folder, self.tree,self.dir_name.get(),self.creative_name.get(), self.task_number.get()))
 
     def apply(self):
         name = self.dir_name.get()
         creative = self.creative_name.get()
-        self.rn.renames(self.folder, name, creative, self.min_var.get(), self.max_var.get)
+        task = self.task_number.get()
+        self.rn.renames(self.folder, name, creative, self.min_var.get(), self.max_var.get, task)
+
+    def addcode(self):
+        name = self.dir_name.get()
+        creative = self.creative_name.get()
+        task = self.task_number.get()
+        self.rn.addcodes(self.folder, name, creative, task, self.min_var.get(), self.max_var.get)
 
 
 a_app = App()

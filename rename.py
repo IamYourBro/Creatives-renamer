@@ -27,7 +27,7 @@ class Rename:
         self.start = int(duo[0])
         self.max = int(duo[1])
 
-    def preview(self, directory, gui, name=False, creative=False):
+    def preview(self, directory, gui, name=False, creative=False, task = "00000"):
         print(f'+ {directory}')
         count = self.start
         maxcount = self.max
@@ -47,13 +47,13 @@ class Rename:
             pattern = re.compile('\d+ [s]')
             duration.append(pattern.findall(file_info['tracks'][0]['other_duration'][0]))
 
-            print(codes)
+            
             print(count)
             size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
-            print(size)
+            
             epno = str(count).zfill(2)
 
-            nameString = f"{parts}_{creative}_{size}_{duration[int(count-1)]}_CODE_{path.suffix}"
+            nameString = f"{parts}_{creative}_{size}_{duration[int(count-1)]}_CODE_MKT{task}{path.suffix}"
             # nameString = f"{parts} - {other_duration} - {epno}{path.suffix}"
             gui.insert('', 'end', path.name, text=path.name, values=(nameString,''))
             if count == maxcount:
@@ -64,7 +64,7 @@ class Rename:
 
 
 
-    def renames(self, directory, name, creative, count, maxcount):
+    def renames(self, directory, name, creative, count, maxcount, task):
         # count = self.start
         # maxcount = self.max
         codes = []
@@ -81,10 +81,10 @@ class Rename:
             code = randomStringDigits(6)
             codes.append(code)
 
-
+            print("count:",  count)
             size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
-            print(size)
-            nameString = f"{directory}\{name}_{creative}_{size}_{duration}_{codes[int(count-1)]}_{path.suffix} "
+            
+            nameString = f"{directory}\{name}_{creative}_{size}_{duration}_{codes[int(count-1)]}_MKT{task}{path.suffix} "
             # nameString = f"{directory}\{name} - {other_duration} - {epno}{path.suffix} "
             path.rename(nameString)
             
@@ -92,3 +92,34 @@ class Rename:
             if count == maxcount:
                 exit()
             count += 1
+
+    def addcodes(self, directory, name, creative, count, maxcount, task):
+        # count = self.start
+        # maxcount = self.max
+        codes = []
+        duration = []
+        for path in sorted(directory.glob('*')):
+            parts = directory.parts
+            parts = parts[len(directory.parts)-1]
+            epno = str(count).zfill(2)
+            file_info = MediaInfo.parse(path).to_data()
+
+            # other_duration = (file_info['tracks'][0]['other_duration'][0])
+            pattern = re.compile('\d+ [s]')
+            duration = pattern.findall(file_info['tracks'][0]['other_duration'][0])
+            code = randomStringDigits(6)
+            codes.append(code)
+
+            print("count:",  count)
+            size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
+            
+            nameString = f"{directory}\{name}_{creative}_{size}_{duration}_{codes[int(count-1)]}_MKT{task}{path.suffix} "
+            # nameString = f"{directory}\{name} - {other_duration} - {epno}{path.suffix} "
+            path.rename(nameString)
+            
+            
+            if count == maxcount:
+                exit()
+            count += 1
+
+    
