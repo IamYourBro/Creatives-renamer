@@ -131,7 +131,7 @@ class App:
         name = self.dir_name.get()
         creative = self.creative_name.get()
         task = self.task_number.get()
-        self.rn.addcodes(self.folder, name, creative, task, self.min_var.get(), self.max_var.get)
+        self.rn.addcodes(self.folder, name, creative, self.min_var.get(), self.max_var.get, task)
 
 
 a_app = App()

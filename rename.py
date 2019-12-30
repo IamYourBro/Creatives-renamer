@@ -7,6 +7,7 @@ duration = []
 import random
 import string
 import re
+import os
 
 def randomStringDigits(stringLength=6):
     """Generate a random string of letters and digits """
@@ -81,45 +82,70 @@ class Rename:
             code = randomStringDigits(6)
             codes.append(code)
 
-            print("count:",  count)
+
             size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
             
-            nameString = f"{directory}\{name}_{creative}_{size}_{duration}_{codes[int(count-1)]}_MKT{task}{path.suffix} "
+            nameString = f"{directory}\{name}_{creative}_{size}_{duration}_CODE_MKT{task}{path.suffix} "
             # nameString = f"{directory}\{name} - {other_duration} - {epno}{path.suffix} "
             path.rename(nameString)
             
             
-            if count == maxcount:
-                exit()
-            count += 1
+            
 
+    # def addcodes(self, directory, name, creative, count, maxcount, task):
+    #     # count = self.start
+    #     # maxcount = self.max
+    #     codes = []
+    #     duration = []
+    #     for path in sorted(directory.glob('*')):
+    #         parts = directory.parts
+    #         parts = parts[len(directory.parts)-1]
+    #         epno = str(count).zfill(2)
+    #         file_info = MediaInfo.parse(path).to_data()
+
+    #         # other_duration = (file_info['tracks'][0]['other_duration'][0])
+    #         pattern = re.compile('\d+ [s]')
+    #         duration = pattern.findall(file_info['tracks'][0]['other_duration'][0])
+    #         code = randomStringDigits(6)
+    #         codes.append(code)
+
+    #         print("count:",  count)
+    #         size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
+            
+    #         nameString = f"{directory}\{name}_{creative}_{size}_{duration}_{codes[int(count-1)]}_MKT{task}{path.suffix} "
+    #         # nameString = f"{directory}\{name} - {other_duration} - {epno}{path.suffix} "
+    #         path.rename(nameString)
+            
+            
+    #         if count == maxcount:
+    #             exit()
+    #         count += 1
+    
+
+    
     def addcodes(self, directory, name, creative, count, maxcount, task):
         # count = self.start
         # maxcount = self.max
         codes = []
-        duration = []
-        for path in sorted(directory.glob('*')):
-            parts = directory.parts
-            parts = parts[len(directory.parts)-1]
-            epno = str(count).zfill(2)
-            file_info = MediaInfo.parse(path).to_data()
+        path = directory
+        files = os.listdir(path)
+        
+        print(files)
+        print("_______________________________________")
 
-            # other_duration = (file_info['tracks'][0]['other_duration'][0])
-            pattern = re.compile('\d+ [s]')
-            duration = pattern.findall(file_info['tracks'][0]['other_duration'][0])
+        for file in files:
+            split = file.split('_')
+            projectname = split[0]
+            creativename = split[1]
+            resolution = split[2]
+            durations = split[3]
+            code_old = split[4]
+            taskname = split[5]
+
+
+
             code = randomStringDigits(6)
-            codes.append(code)
+            filename, file_extension = os.path.splitext(file)
+            os.rename(os.path.join(path, file), os.path.join(path, projectname + "_" + creativename + "_" + resolution + "_" + durations + "_" + str(code) + "_" + taskname  + file_extension))
+            
 
-            print("count:",  count)
-            size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
-            
-            nameString = f"{directory}\{name}_{creative}_{size}_{duration}_{codes[int(count-1)]}_MKT{task}{path.suffix} "
-            # nameString = f"{directory}\{name} - {other_duration} - {epno}{path.suffix} "
-            path.rename(nameString)
-            
-            
-            if count == maxcount:
-                exit()
-            count += 1
-
-    
