@@ -8,6 +8,8 @@ import random
 import string
 import re
 import os
+import pandas as pd
+from pandas import DataFrame
 
 def randomStringDigits(stringLength=6):
     """Generate a random string of letters and digits """
@@ -17,7 +19,7 @@ def randomStringDigits(stringLength=6):
 class Rename:
     max = 200
     start = 1
-
+    
     def inputs(self, path):
         # apath = input('File path')
         apath = pathlib.Path(path)
@@ -28,7 +30,7 @@ class Rename:
         self.start = int(duo[0])
         self.max = int(duo[1])
 
-    def preview(self, directory, gui, name=False, creative=False, task = "00000"):
+    def preview(self, directory, gui, name=False, creative=False, task = "00000", locals = False):
         print(f'+ {directory}')
         count = self.start
         maxcount = self.max
@@ -38,36 +40,22 @@ class Rename:
         if name:
             parts = name
         for path in sorted(directory.glob('*')):
-            # depth = len(path.relative_to(directory).parts)
-            # spacer = '    ' * depth
-            # print(f'{spacer}+ {path.name}')
-
             file_info = MediaInfo.parse(path).to_data()
-
-            # other_duration = (file_info['tracks'][0]['other_duration'][0])
             pattern = re.compile('\d+ [s]')
             duration.append(pattern.findall(file_info['tracks'][0]['other_duration'][0]))
-
-            
             print(count)
             size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
-            
             epno = str(count).zfill(2)
-
-            nameString = f"{parts}_{creative}_{size}_{duration[int(count-1)]}_CODE_MKT{task}{path.suffix}"
-            # nameString = f"{parts} - {other_duration} - {epno}{path.suffix}"
+            nameString = f"{parts}_{creative}_{size}_{locals}_{duration[int(count-1)]}_CODE_MKT{task}{path.suffix}"
             gui.insert('', 'end', path.name, text=path.name, values=(nameString,''))
             if count == maxcount:
                 exit()
             count += 1
-        
         return parts
 
 
 
-    def renames(self, directory, name, creative, count, maxcount, task):
-        # count = self.start
-        # maxcount = self.max
+    def renames(self, directory, name, creative, count, maxcount, task, locals):
         codes = []
         duration = []
         for path in sorted(directory.glob('*')):
@@ -75,77 +63,60 @@ class Rename:
             parts = parts[len(directory.parts)-1]
             epno = str(count).zfill(2)
             file_info = MediaInfo.parse(path).to_data()
-
-            # other_duration = (file_info['tracks'][0]['other_duration'][0])
             pattern = re.compile('\d+ [s]')
             duration = pattern.findall(file_info['tracks'][0]['other_duration'][0])
             code = randomStringDigits(6)
             codes.append(code)
-
-
             size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
-            
-            nameString = f"{directory}\{name}_{creative}_{size}_{duration}_CODE_MKT{task}{path.suffix} "
-            # nameString = f"{directory}\{name} - {other_duration} - {epno}{path.suffix} "
+            nameString = f"{directory}\{name}_{creative}_{size}_{locals}_{duration}_CODE_MKT{task}{path.suffix} "
             path.rename(nameString)
             
-            
-            
-
-    # def addcodes(self, directory, name, creative, count, maxcount, task):
-    #     # count = self.start
-    #     # maxcount = self.max
-    #     codes = []
-    #     duration = []
-    #     for path in sorted(directory.glob('*')):
-    #         parts = directory.parts
-    #         parts = parts[len(directory.parts)-1]
-    #         epno = str(count).zfill(2)
-    #         file_info = MediaInfo.parse(path).to_data()
-
-    #         # other_duration = (file_info['tracks'][0]['other_duration'][0])
-    #         pattern = re.compile('\d+ [s]')
-    #         duration = pattern.findall(file_info['tracks'][0]['other_duration'][0])
-    #         code = randomStringDigits(6)
-    #         codes.append(code)
-
-    #         print("count:",  count)
-    #         size = str(file_info['tracks'][1]['sampled_width'])+"x"+str(file_info['tracks'][1]['sampled_height'])
-            
-    #         nameString = f"{directory}\{name}_{creative}_{size}_{duration}_{codes[int(count-1)]}_MKT{task}{path.suffix} "
-    #         # nameString = f"{directory}\{name} - {other_duration} - {epno}{path.suffix} "
-    #         path.rename(nameString)
-            
-            
-    #         if count == maxcount:
-    #             exit()
-    #         count += 1
     
-
-    
-    def addcodes(self, directory, name, creative, count, maxcount, task):
-        # count = self.start
-        # maxcount = self.max
-        codes = []
+    def addcodes(self, directory, name, creative, count, maxcount, task, locals):
+        codes,names,packs = [],[],[]
         path = directory
         files = os.listdir(path)
-        
+        # переписать с пандаса на простое чтение и запись
+        database = pd.read_excel(r"C:\Users\i.shabanin\Combo_НЕЙМИНГ.xlsx")
         print(files)
         print("_______________________________________")
+        print(database['Code'])
 
         for file in files:
             split = file.split('_')
             projectname = split[0]
             creativename = split[1]
             resolution = split[2]
-            durations = split[3]
-            code_old = split[4]
-            taskname = split[5]
+            localizations = split[3]
+            durations = split[4]
+            code_old = split[5]
+            taskname = split[6]
+           
 
-
-
-            code = randomStringDigits(6)
-            filename, file_extension = os.path.splitext(file)
-            os.rename(os.path.join(path, file), os.path.join(path, projectname + "_" + creativename + "_" + resolution + "_" + durations + "_" + str(code) + "_" + taskname  + file_extension))
             
+            code = randomStringDigits(6)
+            if code in database['Code']:
+                while True:
+                    code = randomStringDigits(6)
+                    if code not in database['Code']:
+                        codes.append(code)
+                        break
+
+            else:
+                codes.append(code)
+            print(codes)
+            filename, file_extension = os.path.splitext(file)
+            names.append(str(projectname + "_" + creativename + "_" + resolution + "_" + localizations + "_" + durations + "_" + str(code) + "_" + taskname))
+            packs.append('temp')
+            new_data = DataFrame()
+            print(codes)
+            print(packs)
+            print(names)
+            new_data['Pack_name'] = packs
+            new_data['Name'] = names
+            new_data['Code'] = codes
+            
+            os.rename(os.path.join(path, file), os.path.join(path, projectname + "_" + creativename + "_" + resolution + "_"+ localizations + "_"  + durations + "_" + str(code) + "_" + taskname ))
+        result = pd.concat([database,new_data], sort= False)
+        result.to_excel(r"C:\Users\i.shabanin\Combo_НЕЙМИНГ.xlsx", index = None)  
 

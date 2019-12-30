@@ -8,7 +8,7 @@ class App:
     def __init__(self):
         self.rn = Rename()
         self.root = Tk()
-        self.root.title('BoarRename')
+        self.root.title('Creative renamer')
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         self.root.resizable(FALSE,FALSE)
@@ -19,6 +19,7 @@ class App:
         self.dir_name = StringVar()
         self.creative_name = StringVar()
         self.task_number = StringVar()
+        self.localization = StringVar()
         self.a_dir = StringVar()
         self.min_var = IntVar()
         self.min_var.set(1)
@@ -47,15 +48,28 @@ class App:
 
         self.path = ttk.Label(self.mainframe, width=100, text="Creative name")
         self.path.grid(column=1, row=8, columnspan=10, sticky=W)
-
         self.creative_entry = ttk.Entry(self.mainframe, width=3, textvariable=self.creative_name)
         self.creative_entry.grid(column=1, row=9, columnspan=2, sticky=(W, E))
 
-        self.path = ttk.Label(self.mainframe, width=100, text="Номер таска")
+
+
+        self.path = ttk.Label(self.mainframe, width=100, text="Локализация")
         self.path.grid(column=1, row=10, columnspan=10, sticky=W)
 
-        self.creative_entry = ttk.Entry(self.mainframe, width=3, textvariable=self.task_number)
-        self.creative_entry.grid(column=1, row=11, columnspan=2, sticky=(W, E))
+        self.locals = ttk.Entry(self.mainframe, width=3, textvariable=self.localization)
+        self.locals.grid(column=1, row=11, columnspan=2, sticky=(W, E))
+
+
+
+
+
+
+
+        self.path = ttk.Label(self.mainframe, width=100, text="Номер таска")
+        self.path.grid(column=1, row=12, columnspan=10, sticky=W)
+
+        self.task_entry = ttk.Entry(self.mainframe, width=3, textvariable=self.task_number)
+        self.task_entry.grid(column=1, row=13, columnspan=2, sticky=(W, E))
 
 
 
@@ -119,19 +133,21 @@ class App:
     def refresh(self):
         print('refreshed')
         self.tree.delete(*self.tree.get_children())
-        self.dir_name.set(self.rn.preview(self.folder, self.tree,self.dir_name.get(),self.creative_name.get(), self.task_number.get()))
+        self.dir_name.set(self.rn.preview(self.folder, self.tree,self.dir_name.get(),self.creative_name.get(), self.task_number.get(),self.localization.get()))
 
     def apply(self):
         name = self.dir_name.get()
         creative = self.creative_name.get()
         task = self.task_number.get()
-        self.rn.renames(self.folder, name, creative, self.min_var.get(), self.max_var.get, task)
+        localization = self.localization.get()
+        self.rn.renames(self.folder, name, creative, self.min_var.get(), self.max_var.get, task, localization)
 
     def addcode(self):
         name = self.dir_name.get()
         creative = self.creative_name.get()
         task = self.task_number.get()
-        self.rn.addcodes(self.folder, name, creative, self.min_var.get(), self.max_var.get, task)
+        localization = self.localization.get()
+        self.rn.addcodes(self.folder, name, creative, self.min_var.get(), self.max_var.get, task, localization)
 
 
 a_app = App()
