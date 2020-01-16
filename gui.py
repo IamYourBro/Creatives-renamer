@@ -333,12 +333,30 @@ class Rename:
             
 
             # nameString = f"{directory}\{name}_{creative}_{size}_{locals}_{str(duration_wo_quotes).replace('[', '').replace(']', '')}s_CODE_MKT{task}{path.suffix} "
-            paths.append(path.name)
-            if all(paths[i] == paths[i-1] for i in range(len(paths) - 1)):
-                path.rename(nameString)
-            else:
+            paths.append(str(nameString))
+            print(paths[:-1])
+            print(nameString)
+            if nameString in paths[:-1]:
+                print('yes')
                 count += 1
                 path.rename(nameString2)
+            else:
+                print('no')
+                path.rename(nameString)
+            paths.append(str(nameString))
+            # for i in range(0, len(paths)-1):
+            #     if (paths[i] in paths):
+            #         print(paths[i])
+            #         print(paths)
+            #         print('yes')
+            #         count += 1
+            #         path.rename(nameString2)
+            #     else:
+            #         count += 1
+            #         print(paths[i])
+            #         print(paths)
+            #         print('no')
+            #         path.rename(nameString)
             
     # закомментил до финальной версии
     def addcodes(self, directory, name, creative, count, maxcount, task, locals, excelname):
